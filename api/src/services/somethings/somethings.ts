@@ -1,6 +1,6 @@
 import type { QueryResolvers, MutationResolvers } from 'types/graphql'
 
-import { RedwoodError, validateWithSync } from '@redwoodjs/api'
+import { RedwoodError, validateWith } from '@redwoodjs/api'
 
 import { db } from 'src/lib/db'
 
@@ -26,8 +26,14 @@ export const updateSomething: MutationResolvers['updateSomething'] = ({
   id,
   input,
 }) => {
-  validateWithSync(async () => {
-    throw new MyCustomError('Cannot update something.')
+  validateWith(async () => {
+    const sth = await db.something.findUnique({
+      where: { id },
+    })
+
+    if (sth.name !== 'can update') {
+      throw new MyCustomError('Cannot update something.')
+    }
   })
 
   return db.something.update({
